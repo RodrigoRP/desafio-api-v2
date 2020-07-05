@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 public class SaleServiceImpl implements SaleService {
 
     private final SaleRepository saleRepository;
+    private final SalesmanRepository salesmanRepository;
 
     @Override
     public Sale save(Sale sale) {
@@ -77,4 +78,8 @@ public class SaleServiceImpl implements SaleService {
     }
 
 
+    public Sale convertToModel(SaleNewDTO saleNewDTO) {
+        Salesman salesman = salesmanRepository.findByName(saleNewDTO.getSalesmanName());
+        return new Sale(saleNewDTO.getSaleId(), saleNewDTO.getSaleItems(), salesman);
+    }
 }

@@ -10,10 +10,8 @@ import com.rodrigoramos.desafiotecnico.api.parser.SalesmanParser;
 import com.rodrigoramos.desafiotecnico.api.repository.CustomerRepository;
 import com.rodrigoramos.desafiotecnico.api.repository.SaleRepository;
 import com.rodrigoramos.desafiotecnico.api.repository.SalesmanRepository;
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +19,6 @@ import java.io.*;
 import java.time.LocalDate;
 import java.util.StringTokenizer;
 
-@RequiredArgsConstructor
 @Service
 public class DatabaseService {
 
@@ -41,6 +38,15 @@ public class DatabaseService {
     @Value("${data.caminho-saida}")
     private String targetFileStr;
 
+    public DatabaseService(SaleServiceImpl saleService, SalesmanRepository salesmanRepository, CustomerRepository customerRepository, SaleRepository saleRepository, SaleMapper saleMapper) {
+        this.saleService = saleService;
+        this.salesmanRepository = salesmanRepository;
+        this.customerRepository = customerRepository;
+        this.saleRepository = saleRepository;
+        this.saleMapper = saleMapper;
+    }
+
+
     public void instantiateDatabase(String fileName) {
         String sourceFileStrAux = sourceFileStr + fileName;
 
@@ -58,7 +64,7 @@ public class DatabaseService {
                 } else if (Identifier.CUSTOMER.getCod() == token) {
                     customerRepository.save(CustomerParser.parse(tokenizer));
                 } else if (Identifier.SALE.getCod() == token) {
-                    Sale sale = saleMapper.toModel(SaleParser.parse(tokenizer));
+                    Sale sale = saleService.convertToModel(SaleParser.parse(tokenizer));
                     saleRepository.save(sale);
                 }
                 itemCsv = br.readLine();

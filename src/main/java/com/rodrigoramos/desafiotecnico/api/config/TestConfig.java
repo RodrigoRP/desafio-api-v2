@@ -16,10 +16,12 @@ import java.io.File;
 public class TestConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(TestConfig.class);
+
     private final DatabaseService dbService;
 
     @Autowired
     public TestConfig(DatabaseService dbService) {
+
         this.dbService = dbService;
     }
 
