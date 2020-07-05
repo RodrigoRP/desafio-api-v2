@@ -6,9 +6,10 @@ import com.rodrigoramos.desafiotecnico.api.repository.CustomerRepository;
 import com.rodrigoramos.desafiotecnico.api.service.exceptions.ObjectNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.List;
@@ -18,19 +19,19 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class CustomerServiceTest {
 
-    @Autowired
+    @InjectMocks
     private CustomerServiceImpl service;
 
-    @MockBean
+    @Mock
     private CustomerRepository customerRepository;
 
     @Test
     public void findCustomerByIdTest() {
         // Setup our mock repository
-        Customer customer = new Customer(1L, "123123", "Mario", "Rural");
+        Customer customer = new Customer(1L, "88042494000118", "Mario Assis", "Rural");
         doReturn(Optional.of(customer)).when(customerRepository).findById(1L);
 
         // Execute the service call
@@ -55,8 +56,8 @@ public class CustomerServiceTest {
     @Test
     public void findAllCustomerTest() {
         // Setup our mock repository
-        Customer customer1 = new Customer(1L, "123123", "Mario", "Rural");
-        Customer customer2 = new Customer(2L, "123123", "José", "Rural");
+        Customer customer1 = new Customer(1L, "46470486000122", "Mario", "Rural");
+        Customer customer2 = new Customer(2L, "41615065000129", "José", "Rural");
 
         doReturn(Arrays.asList(customer1, customer2)).when(customerRepository).findAll();
 
