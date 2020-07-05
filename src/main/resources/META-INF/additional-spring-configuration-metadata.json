@@ -1,0 +1,8 @@
+{
+  "properties": [
+   {
+      "name": "data.carga-inicial",
+      "type": "java.lang.String",
+      "description": "Nome do arquivo ao ser carregado ao inicializar a aplicacao.."
+    }
+  ] }
