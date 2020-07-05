@@ -1,13 +1,10 @@
 package com.rodrigoramos.desafiotecnico.api.service;
 
-import com.rodrigoramos.desafiotecnico.api.dto.SalesmanNewDTO;
 import com.rodrigoramos.desafiotecnico.api.model.Salesman;
 import com.rodrigoramos.desafiotecnico.api.repository.SalesmanRepository;
-import com.rodrigoramos.desafiotecnico.api.service.exceptions.DataIntegrityException;
 import com.rodrigoramos.desafiotecnico.api.service.exceptions.ObjectNotFoundException;
 import com.rodrigoramos.desafiotecnico.api.service.interfaces.SalesmanService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -57,18 +54,9 @@ public class SalesmanServiceImpl implements SalesmanService {
     @Override
     public void delete(Long id) {
         find(id);
-        try {
-            salesmanRepository.deleteById(id);
-        } catch (DataIntegrityViolationException e) {
-            throw new DataIntegrityException("Unable to delete!");
-        }
+        salesmanRepository.deleteById(id);
+
     }
-
-
-    public Salesman convertToModel(SalesmanNewDTO salesmanNewDTO) {
-        return new Salesman(null, salesmanNewDTO.getCpf(), salesmanNewDTO.getName(), salesmanNewDTO.getSalary());
-    }
-
 
 }
 
