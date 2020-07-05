@@ -1,5 +1,6 @@
 package com.rodrigoramos.desafiotecnico.api.service;
 
+import com.rodrigoramos.desafiotecnico.api.mapper.SaleMapper;
 import com.rodrigoramos.desafiotecnico.api.model.Sale;
 import com.rodrigoramos.desafiotecnico.api.model.Salesman;
 import com.rodrigoramos.desafiotecnico.api.model.enums.Identifier;
@@ -9,6 +10,7 @@ import com.rodrigoramos.desafiotecnico.api.parser.SalesmanParser;
 import com.rodrigoramos.desafiotecnico.api.repository.CustomerRepository;
 import com.rodrigoramos.desafiotecnico.api.repository.SaleRepository;
 import com.rodrigoramos.desafiotecnico.api.repository.SalesmanRepository;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,7 @@ import java.io.*;
 import java.time.LocalDate;
 import java.util.StringTokenizer;
 
+@RequiredArgsConstructor
 @Service
 public class DatabaseService {
 
@@ -28,6 +31,7 @@ public class DatabaseService {
     private final SalesmanRepository salesmanRepository;
     private final CustomerRepository customerRepository;
     private final SaleRepository saleRepository;
+    private final SaleMapper saleMapper;
 
     private static final Logger logger = LoggerFactory.getLogger(DatabaseService.class);
 
@@ -36,18 +40,6 @@ public class DatabaseService {
 
     @Value("${data.caminho-saida}")
     private String targetFileStr;
-
-
-    @Autowired
-    public DatabaseService(SalesmanRepository salesmanRepository,
-                           CustomerRepository customerRepository,
-                           SaleRepository saleRepository,
-                           SaleServiceImpl saleService) {
-        this.salesmanRepository = salesmanRepository;
-        this.customerRepository = customerRepository;
-        this.saleRepository = saleRepository;
-        this.saleService = saleService;
-    }
 
     public void instantiateDatabase(String fileName) {
         String sourceFileStrAux = sourceFileStr + fileName;
@@ -66,7 +58,7 @@ public class DatabaseService {
                 } else if (Identifier.CUSTOMER.getCod() == token) {
                     customerRepository.save(CustomerParser.parse(tokenizer));
                 } else if (Identifier.SALE.getCod() == token) {
-                    Sale sale = saleService.convertToModel(SaleParser.parse(tokenizer));
+                    Sale sale = saleMapper.toModel(SaleParser.parse(tokenizer));
                     saleRepository.save(sale);
                 }
                 itemCsv = br.readLine();
