@@ -1,131 +1,113 @@
 package com.rodrigoramos.desafiotecnico.api.service;
 
 
-import com.rodrigoramos.desafiotecnico.api.dto.CustomerNewDTO;
 import com.rodrigoramos.desafiotecnico.api.model.Customer;
 import com.rodrigoramos.desafiotecnico.api.repository.CustomerRepository;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import com.rodrigoramos.desafiotecnico.api.service.exceptions.ObjectNotFoundException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.SoftAssertions.assertSoftly;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
-@Transactional
-@DirtiesContext
+
+@SpringBootTest
 public class CustomerServiceTest {
 
     @Autowired
-    private CustomerServiceImpl customerService;
+    private CustomerServiceImpl service;
 
-    @Autowired
+    @MockBean
     private CustomerRepository customerRepository;
 
     @Test
-    public void shouldCreateCustomer() {
-        // given
-        Customer customer = new Customer(null, "85424488000137", "João", "Rural");
+    public void findCustomerByIdTest() {
+        // Setup our mock repository
+        Customer customer = new Customer(1L, "123123", "Mario", "Rural");
+        doReturn(Optional.of(customer)).when(customerRepository).findById(1L);
 
-        // when
-        Customer savedCustomer = customerService.save(customer);
+        // Execute the service call
+        Customer returnedCustomer = service.find(1L);
 
-        // then
-
-        assertSoftly(softly -> {
-            softly.assertThat(savedCustomer).isNotNull();
-            softly.assertThat(savedCustomer.getBusinessArea()).isEqualTo(customer.getBusinessArea());
-            softly.assertThat(savedCustomer.getName()).isEqualTo(customer.getName());
-            softly.assertThat(savedCustomer.getId()).isNotNull();
-            softly.assertThat(savedCustomer.getCnpj()).isEqualTo("85424488000137");
-        });
+        // Assert the response
+        Assertions.assertEquals(returnedCustomer, customer);
     }
 
     @Test
-    public void shouldDeleteCustomer() {
-        // given
-        Customer savedCustomer = new Customer(null, "85424488000137", "João", "Rural");
-        customerService.save(savedCustomer);
-        assertThat(customerRepository.findById(savedCustomer.getId())).isNotNull();
+    public void shouldThrowErrorWhenFindByIdTest() {
+        // Setup our mock repository
+        doReturn(Optional.empty()).when(customerRepository).findById(1L);
 
-        // when
-        customerService.delete(savedCustomer.getId());
+        // Execute the service call
+        //   Customer returnedCustomer = service.find(1L);
 
-        // then
-        assertThat(customerRepository.findById(savedCustomer.getId())).isNotPresent();
-
-    }
-
-
-    @Test
-    public void shouldFindById() {
-        // given
-        Customer savedCustomer = new Customer(null, "85424488000137", "João", "Rural");
-        customerService.save(savedCustomer);
-
-        // when
-        Customer foundCustomer = customerService.find(savedCustomer.getId());
-
-        // then
-        assertThat(foundCustomer).isNotNull();
-        assertThat(foundCustomer.getId()).isEqualTo(savedCustomer.getId());
-
+        // Assert the response
+        Assertions.assertThrows(ObjectNotFoundException.class, () -> service.find(1L));
     }
 
     @Test
-    public void shouldFindAll() {
-        // given
-        Customer savedCustomer1 = new Customer(null, "85424488000137", "João", "Rural");
-        Customer savedCustomer2 = new Customer(null, "85424488000137", "Maria", "Rural");
+    public void findAllCustomerTest() {
+        // Setup our mock repository
+        Customer customer1 = new Customer(1L, "123123", "Mario", "Rural");
+        Customer customer2 = new Customer(2L, "123123", "José", "Rural");
 
-        customerService.save(savedCustomer1);
-        customerService.save(savedCustomer2);
+        doReturn(Arrays.asList(customer1, customer2)).when(customerRepository).findAll();
 
+        // Execute the service call
+        List<Customer> customerList = service.findAll();
 
-        // when
-        List<Customer> customers = customerService.findAll();
-
-        // then
-        assertThat(customers.stream().map(Customer::getId).collect(Collectors.toList()))
-                .contains(savedCustomer1.getId(), savedCustomer2.getId());
-
+        // Assert the response
+        Assertions.assertEquals(2, customerList.size());
     }
 
     @Test
-    public void shouldReturnAllCustomers() {
-        // given
-        Customer user1 = new Customer(null, "85424488000137", "João", "Rural");
-        Customer user2 = new Customer(null, "85424488000137", "Maria", "Rural");
+    public void saveCustomerTest() {
+        // Setup our mock repository
+        Customer customer = new Customer(1L, "123123", "Mario", "Rural");
+        doReturn(customer).when(customerRepository).save(any());
 
-        // when
-        Long foundCustomer = customerService.getNumberOfCustomers();
-        List<Customer> salesmen = customerService.findAll();
+        // Execute the service call
+        Customer returnedCustomer = service.save(customer);
 
-        // then
-        assertThat(foundCustomer).isNotNull();
-        assertThat(salesmen.size()).isEqualTo(foundCustomer.intValue());
+        // Assert the response
+        Assertions.assertNotNull(returnedCustomer);
     }
-
 
     @Test
-    public void shouldConvertDtoToModel() {
-        // given
-        Customer expected = new Customer(null, "85424488000137", "João", "Rural");
+    public void deleteCustomerTest() {
+        // Setup our mock repository
+        Customer customer = new Customer(1L, "123123", "Mario", "Rural");
+        doReturn(Optional.of(customer)).when(customerRepository).findById(1L);
 
-        // when
-        CustomerNewDTO dto = new CustomerNewDTO(expected.getCnpj(), expected.getName(), expected.getBusinessArea());
+        // Execute the service call
+        service.delete(1L);
 
-        // then
-        assertThat(expected).isEqualToComparingFieldByField(customerService.convertToModel(dto));
+        verify(customerRepository, times(1)).deleteById(1L);
     }
+
+/*    @Test
+    public void getNumberOfCustomersTest() {
+        // Setup our mock repository
+        Customer customer1 = new Customer(null, "30938355000197", "Mario", "Rural");
+        Customer customer2 = new Customer(null, "35973881000101", "José", "Rural");
+
+        doReturn(Arrays.asList(customer1, customer2)).when(customerRepository).findAll();
+
+        // Execute the service call
+        service.save(customer1);
+        service.save(customer2);
+        Long numberOfCustomers = service.getNumberOfCustomers();
+
+        // Assert the response
+        Assertions.assertEquals(2L, numberOfCustomers);
+    }*/
 
 
 }
