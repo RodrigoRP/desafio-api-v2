@@ -1,7 +1,6 @@
 package com.rodrigoramos.desafiotecnico.api.service;
 
 
-import com.rodrigoramos.desafiotecnico.api.model.Customer;
 import com.rodrigoramos.desafiotecnico.api.model.Sale;
 import com.rodrigoramos.desafiotecnico.api.model.SaleItem;
 import com.rodrigoramos.desafiotecnico.api.model.Salesman;

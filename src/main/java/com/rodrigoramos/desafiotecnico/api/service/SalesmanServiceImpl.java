@@ -35,7 +35,7 @@ public class SalesmanServiceImpl implements SalesmanService {
     }
 
     @Override
-    public Long getNumberOfSalespeople() {
+    public long getNumberOfSalespeople() {
         return salesmanRepository.count();
     }
 

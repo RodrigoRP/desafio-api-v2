@@ -10,7 +10,7 @@ public interface SalesmanService {
 
     List<Salesman> findAll();
 
-    Long getNumberOfSalespeople();
+    long getNumberOfSalespeople();
 
     Salesman findByName(String name);
 

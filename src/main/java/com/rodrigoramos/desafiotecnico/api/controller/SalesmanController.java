@@ -45,7 +45,7 @@ public class SalesmanController {
     }
 
     @GetMapping(value = "/count")
-    public Long getNumberOfSalespeople() {
+    public long getNumberOfSalespeople() {
         return salesmanService.getNumberOfSalespeople();
     }
 

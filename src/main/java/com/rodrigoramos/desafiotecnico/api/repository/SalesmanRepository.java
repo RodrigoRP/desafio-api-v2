@@ -8,4 +8,7 @@ import org.springframework.stereotype.Repository;
 public interface SalesmanRepository extends JpaRepository<Salesman, Long> {
 
     Salesman findByName(String name);
+
+    long count();
+
 }

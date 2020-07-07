@@ -9,12 +9,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
 class SalesmanServiceTest {
@@ -27,68 +30,99 @@ class SalesmanServiceTest {
 
     @Test
     void saveSalesmanTest() {
-        // Setup our mock repository
-        Salesman salesman = new Salesman(null, "68424226046", "Adamastor", 3000.00);
-        doReturn(salesman).when(repository).save(any());
+        //given
+        Salesman salesman = new Salesman();
+        given(repository.save(any(Salesman.class))).willReturn(salesman);
 
-        // Execute the service call
-        Salesman save = service.save(salesman);
+        //when
+        Salesman savedSalesman = service.save(salesman);
 
-        // Assert the response
-        Assertions.assertNotNull(save);
+        //then
+        Assertions.assertNotNull(savedSalesman);
+        then(repository).should(times(1)).save(any(Salesman.class));
+    }
+
+    @Test
+    void saveSalesmanAlreadytExistsTest() {
+        //given
+        Salesman salesman1 = new Salesman(1L, "78375158038", "Adamastor", 1223.00);
+        Salesman salesman2 = new Salesman(2L, "85206466034", "Adamastor", 1223.00);
+        given(repository.save(any(Salesman.class))).willReturn(salesman1);
+
+        //when
+        Salesman savedSalesman1 = service.save(salesman1);
+        Salesman savedsalesman2 = service.save(salesman2);
+
+        //then
+        Assertions.assertEquals(savedSalesman1.getSalary(), savedsalesman2.getSalary());
+        then(repository).should(times(2)).save(any(Salesman.class));
     }
 
     @Test
     void findSalesmanByNameTest() {
-        // Setup our mock repository
-        Salesman salesman = new Salesman(null, "68424226046", "Adamastor", 3000.00);
-        doReturn(salesman).when(repository).findByName(salesman.getName());
+        //given
+        Salesman salesman = new Salesman();
+        given(repository.findByName(salesman.getName())).willReturn(salesman);
 
-        // Execute the service call
+        //when
         Salesman returnedSalesman = service.findByName(salesman.getName());
 
-        // Assert the response
+        //then
         Assertions.assertEquals(returnedSalesman, salesman);
-
+        then(repository).should(times(1)).findByName(salesman.getName());
     }
 
     @Test
     void findAllSalesmanTest() {
-        // Setup our mock repository
-        Salesman salesman1 = new Salesman(null, "68424226046", "Adamastor", 3000.00);
-        Salesman salesman2 = new Salesman(null, "33364109087", "Humberto", 15000.00);
-        doReturn(Arrays.asList(salesman1, salesman2)).when(repository).findAll();
+        //given
+        Salesman salesman = new Salesman();
+        List<Salesman> salesmen = new ArrayList<>();
+        salesmen.add(salesman);
+        given(repository.findAll()).willReturn(salesmen);
 
-        // Execute the service call
+        //when
         List<Salesman> salesmanList = service.findAll();
 
-        // Assert the response
-        Assertions.assertEquals(2, salesmanList.size());
+        //then
+        then(repository).should(times(1)).findAll();
+        Assertions.assertEquals(1, salesmanList.size());
     }
 
     @Test
     void findSalesmanByIdTest() {
-        // Setup our mock repository
-        Salesman salesman = new Salesman(1L, "68424226046", "Adamastor", 3000.00);
-        doReturn(Optional.of(salesman)).when(repository).findById(1L);
+        //given
+        Salesman salesman = new Salesman();
+        given(repository.findById(1L)).willReturn(Optional.of(salesman));
 
-        // Execute the service call
+        //when
         Salesman returnedSalesman = service.find(1L);
 
-        // Assert the response
+        //then
         Assertions.assertEquals(returnedSalesman, salesman);
-
+        then(repository).should(times(1)).findById(anyLong());
     }
 
     @Test
     void deleteSalesmanByIdTest() {
-        // Setup our mock repository
-        Salesman salesman = new Salesman(1L, "68424226046", "Adamastor", 3000.00);
-        doReturn(Optional.of(salesman)).when(repository).findById(1L);
+        //given
+        Salesman salesman = new Salesman();
+        given(repository.findById(1L)).willReturn(Optional.of(salesman));
 
-        // Execute the service call
+        //when
         service.delete(1L);
 
-        verify(repository, times(1)).deleteById(1L);
+        //then
+        then(repository).should(times(1)).deleteById(anyLong());
+    }
+
+    @Test
+    void getNumberOfSalespeopleTest() {
+        //given
+
+        //when
+        service.getNumberOfSalespeople();
+
+        //then
+        then(repository).should(times(1)).count();
     }
 }

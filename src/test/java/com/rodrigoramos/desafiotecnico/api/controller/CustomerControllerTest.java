@@ -1,23 +1,24 @@
 package com.rodrigoramos.desafiotecnico.api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rodrigoramos.desafiotecnico.api.dto.CustomerNewDTO;
 import com.rodrigoramos.desafiotecnico.api.model.Customer;
 import com.rodrigoramos.desafiotecnico.api.repository.CustomerRepository;
-import org.junit.Before;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.Matchers.is;
@@ -25,17 +26,16 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 class CustomerControllerTest {
 
     private final String BASE_URL = "/api/v1/customer";
 
-    private ObjectMapper objectMapper;
-
     @Autowired
     private WebApplicationContext webApplicationContext;
+
+    private ObjectMapper objectMapper;
 
     private MockMvc mockMvc;
 
@@ -70,7 +70,6 @@ class CustomerControllerTest {
 
     @Test
     void find_all_200() throws Exception {
-        List<Customer> list = new ArrayList<>();
         Customer customer1 = new Customer(1L, "46470486000122", "Mario", "Rural");
         Customer customer2 = new Customer(2L, "41615065000129", "José", "Rural");
 
@@ -89,6 +88,61 @@ class CustomerControllerTest {
                 .andExpect(jsonPath("$[1].businessArea", is("Rural")));
 
         verify(mockRepository, times(1)).findAll();
+    }
+
+    @Test
+    void deletar_200() throws Exception {
+        Customer customer1 = new Customer(1L, "46470486000122", "Mario", "Rural");
+
+        when(mockRepository.findById(1L)).thenReturn(Optional.of(customer1));
+
+        mockMvc.perform(delete(BASE_URL + "/1"))
+                .andExpect(status().isNoContent());
+
+        verify(mockRepository, times(1)).deleteById(1L);
+    }
+
+    @Test
+    void criar_204() throws Exception {
+        CustomerNewDTO dto = new CustomerNewDTO("46470486000122", "Mario", "Rural");
+        Customer customer1 = new Customer(1L, "46470486000122", "Mario", "Rural");
+
+        //when(mockRepository.save(any(Customer.class))).thenReturn(customer1);
+        doReturn(customer1).when(mockRepository).save(any());
+
+        mockMvc.perform(post(BASE_URL)
+                .content(objectMapper.writeValueAsString(dto))
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated());
+
+        //  verify(mockRepository, times(1)).save(any(Customer.class));
+    }
+
+    @Test
+    void update_200() throws Exception {
+        Customer customer1 = new Customer(1L, "46470486000122", "Mario", "Rural");
+        CustomerNewDTO dto = new CustomerNewDTO("09938837000150", "Adão", "Urbano");
+
+        doReturn(Optional.of(customer1)).when(mockRepository).findById(1L);
+
+        mockMvc.perform(put(BASE_URL + "/{id}", 1)
+                .content(objectMapper.writeValueAsString(dto))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("Adão"));
+    }
+
+    @Test
+    void getNumberOfCustomers_200()throws Exception {
+        Customer customer1 = new Customer(1L, "46470486000122", "Mario", "Rural");
+
+        doReturn(Optional.of(customer1)).when(mockRepository).findById(1L);
+
+        mockMvc.perform(get(BASE_URL + "/count")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
     }
 
 }

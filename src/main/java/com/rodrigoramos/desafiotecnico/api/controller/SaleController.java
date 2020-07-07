@@ -7,7 +7,6 @@ import com.rodrigoramos.desafiotecnico.api.model.Sale;
 import com.rodrigoramos.desafiotecnico.api.service.DatabaseService;
 import com.rodrigoramos.desafiotecnico.api.service.SaleServiceImpl;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;

@@ -1,9 +1,8 @@
 package com.rodrigoramos.desafiotecnico.api.config;
 
 import com.rodrigoramos.desafiotecnico.api.service.DatabaseService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,19 +10,13 @@ import org.springframework.context.annotation.Profile;
 
 import java.io.File;
 
+@Log4j2
 @Configuration
 @Profile("test")
+@RequiredArgsConstructor
 public class TestConfig {
 
-    private static final Logger logger = LoggerFactory.getLogger(TestConfig.class);
-
     private final DatabaseService dbService;
-
-    @Autowired
-    public TestConfig(DatabaseService dbService) {
-
-        this.dbService = dbService;
-    }
 
     @Value("${data.caminho-entrada}")
     private String pathStr;
@@ -37,7 +30,7 @@ public class TestConfig {
             String extension = getFileExtension(listOfFile);
             if (listOfFile.isFile() && extension.equals("dat")) {
                 dbService.instantiateDatabase(listOfFile.getName());
-                logger.info("File: {}.", listOfFile.getName());
+                //log.info("File: {}." + listOfFile.getName());
                 fileExists = Boolean.TRUE;
             }
         }
